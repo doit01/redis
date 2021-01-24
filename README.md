@@ -1,4 +1,12 @@
- @Autowired
+private void savePermissionToRedis(AdminDetails adminDetails,String tokenId){
+        List<PermissionDomain> permissionDomainList = adminDetails.getRoleList().stream()
+                .flatMap(role -> role.getPermList().stream()).collect(Collectors.toList());
+        String redisKey = "perm_"+adminDetails.getUsername()+"_"+tokenId;
+        permissionDomainRedisTemplate.opsForList().leftPushAll(redisKey,permissionDomainList);
+        permissionDomainRedisTemplate.expire(redisKey,expirationRefreshTime, TimeUnit.SECONDS);
+    }
+ 
+@Autowired
     private RedisTemplate<String,Object> redisTemplate;
 
     /**
